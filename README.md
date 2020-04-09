@@ -1,17 +1,37 @@
 # 今日热榜
 
-[![Build Status](https://travis-ci.com/async-rs/async-std.svg?branch=master)](https://github.com/tophubs/TopList/)
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](https://github.com/tophubs/TopList/)
+**今日热榜是一个获取各大热门网站热门头条的聚合网站，使用Go语言编写，多协程异步快速抓取信息，预览:[http://mo.fish][热榜]**
 
-**今日热榜是一个获取各大热门网站热门头条的聚合网站，使用Go语言编写，多协程异步快速抓取信息，预览:[https://www.printf520.com/hot.html][热榜]**
-![DeepinScrot-4337.png](https://i.loli.net/2019/08/05/PjX2nqWAgM5xsL4.png)
+![DeepinScrot-1130.png](http://img.printf520.com/img/DeepinScrot-1130.png)
 
 ### 安装教程
 
+1. 编译
 
-1. 执行database.sql创建数据库,并配置/Config/Mysql.go数据库连接地址
-2. 部署定时任务/App/GetHot.go爬虫程序，且以守护进程的方式执行Server.go
-3. 打开hot.html今日热榜页面
+   ```
+   cd {root_path} # 项目根目录
+   go build -o ./App/GetHot App/GetHot.go
+   go build -o ./App/Server App/Server.go 
+   ```
+   
+2. 创建数据库，如 `news`，执行database.sql创建表，更改配置文件`Config/mysql.toml`
+
+3. 编辑文件 `Html/js/blog/globalConfig.js`
+
+   ```
+   const ServerIp = 'http://{your_domain}:9090' // 替换成服务器域名
+   ```
+
+4. 部署定时任务/App/GetHot.go爬虫程序，且以守护进程的方式执行Server.go
+
+   ```
+   crontab -e # 添加一行 0 */1 * * * {root_path}/App/GetHot
+   nohup {root_path}/App/Server &
+   ```
+
+5. 测试
+
+   - 打开`http://{yourdomain}:9090/` 即可访问今日热榜
 
 
 ### 目录说明
@@ -43,7 +63,7 @@ TopList/
 
 #### 获取所有类型
 - Method: **GET**
-- URL:  ```https://www.printf520.com:8080/GetType```
+- URL:  ```https://www.tophub.fun:8888/GetAllType```
 - Param：无
 - Body:
 ```
@@ -61,33 +81,44 @@ TopList/
 
 ### 获取具体类型热榜数据
 - Method: **GET**
-- URL:  ```  https://www.printf520.com:8080/GetTypeInfo?id=2```
+- URL:  ```  https://www.tophub.fun:8888/v2/GetAllInfoGzip?id=59&page=0```
 - Param：id
 - Body:
 ```
 {
     "Code":0,
-    "Message":"获取成功",
-    "Data":[
-        {
-            "title":"
-45个经典面试回答提示，分享给即将工作的大家。 zt
-",
-            "url":"https://bbs.hupu.com//28814429.html"
-        },
-        {
-            "title":"
-[名场面]回家的诱惑：洪世贤酒店幽会，抵不住诱惑犯了错！ zt
-",
-            "url":"https://bbs.hupu.com//28818367.html"
-        },
-        {
-            "title":"
-张艺兴回应假唱风波。ZT
-",
-            "url":"https://bbs.hupu.com//28815609.html"
-        }
-    ]
+    "Message":"获取数据成功",
+    "Data":{
+        "data":[
+            {
+                "id":1327371,
+                "CreateTime":1579487422,
+                "commentNum":0,
+                "approvalNum":0,
+                "Title":"180W 买了个小破房，月供 7500 多，压力山大",
+                "hotDesc":"200条评论",
+                "Url":"https://www.v2ex.com/t/639366#reply200",
+                "imgUrl":"",
+                "isRss":"",
+                "is_agree":0,
+                "TypeName":"社区"
+            },
+            {
+                "id":1326304,
+                "CreateTime":1579483806,
+                "commentNum":0,
+                "approvalNum":0,
+                "Title":"口罩(N95) 目前应该买哪个? 有研究过得推荐一下?",
+                "hotDesc":"106条评论",
+                "Url":"https://www.v2ex.com/t/639343#reply106",
+                "imgUrl":"",
+                "isRss":"",
+                "is_agree":0,
+                "TypeName":"社区"
+            },
+        ],
+        "page":10
+    }
 }
 ```
 
